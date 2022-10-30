@@ -1,0 +1,101 @@
+[
+  {
+    "model": "accounts.account",
+    "pk": "7b06d66a-a864-4d13-8bb6-ac2365d7987b",
+    "fields": {
+      "password": "pbkdf2_sha256$390000$guzfsBxK6Cn9SI4RYsesqk$Du/U+AseTy8oJ3oOZajbgb9437Y0TDJOmiRmEQ8S16k=",
+      "last_login": null,
+      "is_superuser": false,
+      "username": "alexandreatua",
+      "email": "",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2022-10-29T22:22:21.336Z",
+      "is_seller": false,
+      "first_name": "alexandre atualiza",
+      "last_name": "alves",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "accounts.account",
+    "pk": "97353750-a18c-4e07-a6e1-e80ee39de9f0",
+    "fields": {
+      "password": "pbkdf2_sha256$390000$W5uzGkf2Oex2pLAv6Ecxzm$mHpbwxEk+BiqsDu7C9y+HwA7yPSeHSKOiFhSEdlZITs=",
+      "last_login": null,
+      "is_superuser": true,
+      "username": "teste",
+      "email": "",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2022-10-30T10:46:25.953Z",
+      "is_seller": false,
+      "first_name": "teste",
+      "last_name": "teste",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "accounts.account",
+    "pk": "9f44836c-a1c5-4455-8216-786cc6f8ce38",
+    "fields": {
+      "password": "pbkdf2_sha256$390000$NtbLGq0hPoSmDDPrgrzAeQ$NZOP1328lUXQlhjeoG4XeukXLjBfdPN18ur0o5UZb/A=",
+      "last_login": null,
+      "is_superuser": true,
+      "username": "carla",
+      "email": "",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2022-10-29T22:26:36.697Z",
+      "is_seller": false,
+      "first_name": "carla",
+      "last_name": "suzart",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "accounts.account",
+    "pk": "a60b35d7-9520-4565-b9c5-bbe9b85e06ef",
+    "fields": {
+      "password": "pbkdf2_sha256$390000$8zgL1dNTmj5YTVq70OmoNH$lKU8p7UCCyE/hT7seGadGpAay0ze7kQPC9yoYm1OLKg=",
+      "last_login": null,
+      "is_superuser": false,
+      "username": "carla3",
+      "email": "",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2022-10-30T11:02:03.164Z",
+      "is_seller": false,
+      "first_name": "carla",
+      "last_name": "suzart",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+
+  {
+    "model": "products.product",
+    "pk": "2f489024-b2a8-489d-b8a8-5932ffc97540",
+    "fields": {
+      "description": "Smartband vcgfd XYZ 10.0 vendedor",
+      "price": "100.99",
+      "quantity": 15,
+      "is_active": true,
+      "seller": "a620e0df-751e-48b7-9408-5e89992295ed"
+    }
+  },
+  {
+    "model": "products.product",
+    "pk": "bc9738e3-595d-497a-b56f-bf04fac1ba41",
+    "fields": {
+      "description": "Smartband vcgfd XYZ 10.0 vendedor",
+      "price": "100.99",
+      "quantity": 15,
+      "is_active": true,
+      "seller": "a620e0df-751e-48b7-9408-5e89992295ed"
+    }
+  }
+]
