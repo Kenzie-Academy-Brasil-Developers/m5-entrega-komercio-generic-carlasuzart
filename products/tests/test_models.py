@@ -124,6 +124,123 @@ class ProductModelTest(APITestCase):
             response.data["detail"], "Authentication credentials were not provided."
         )
 
-    
+    '''def test_create_product_with_not_seller(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION="Token " + self.token_not_seller.key)
+
+        response = self.client.post(
+            self.list_create_update_url, data=self.product)
+
+        expected_status_code = status.HTTP_403_FORBIDDEN
+        result_status_code = response.status_code
+        self.assertEqual(expected_status_code, result_status_code)
+        self.assertEqual(
+            response.data["detail"], "You do not have permission to perform this action."
+        )
+
+    def test_create_product_with_adm(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION="Token " + self.token_adm.key)
+
+        response = self.client.post(
+            self.list_create_update_url, data=self.product)
+
+        expected_status_code = status.HTTP_403_FORBIDDEN
+        result_status_code = response.status_code
+        self.assertEqual(expected_status_code, result_status_code)
+        self.assertEqual(
+            response.data["detail"], "You do not have permission to perform this action."
+        )
+
+    def test_create_with_wrong_keys(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION="Token " + self.token_seller.key)
+
+        response = self.client.post(
+            self.list_create_update_url, data={})
+
+        expected_status_code = status.HTTP_400_BAD_REQUEST
+        result_status_code = response.status_code
+
+        self.assertEqual(expected_status_code, result_status_code)
+        self.assertEqual(
+            response.data["description"][0], "This field is required."
+        )
+        self.assertEqual(
+            response.data["price"][0], "This field is required."
+        )
+        self.assertEqual(
+            response.data["quantity"][0], "This field is required."
+        )
+
+    def test_can_list_products(self):
+        response = self.client.get(
+            self.list_create_update_url)
+
+        expected_status_code = status.HTTP_200_OK
+        result_status_code = response.status_code
+
+        self.assertEqual(expected_status_code, result_status_code)
+        self.assertIn('results', response.data)
+        self.assertEqual(len(self.products), len(response.data))
+        self.assertEqual(len(response.data['results'][0].keys()), 5)
+
+    def test_can_filter_product(self):
+        response = self.client.get(
+            f'{self.list_create_update_url}{self.product_created.id}/')
+
+        expected_status_code = status.HTTP_200_OK
+        result_status_code = response.status_code
+
+        self.assertEqual(expected_status_code, result_status_code)
+        self.assertEqual(len(response.data.keys()), 5)
+
+    def test_only_owner_can_edit_product(self):
+        product = Product.objects.create(**self.product, seller=self.seller)
+        self.client.credentials(
+            HTTP_AUTHORIZATION="Token " + self.token_seller.key)
+
+        response = self.client.patch(
+            f'{self.list_create_update_url}{product.id}/', data={"price": 250})
+
+        expected_status_code = status.HTTP_200_OK
+        result_status_code = response.status_code
+
+        self.assertEqual(expected_status_code, result_status_code)
+        self.assertEqual(len(response.data.keys()), 6)
+
+    def test_other_user_can_edit_product(self):
+        product = Product.objects.create(**self.product, seller=self.seller)
+        self.client.credentials(
+            HTTP_AUTHORIZATION="Token " + self.token_seller_2.key)
+
+        response = self.client.patch(
+            f'{self.list_create_update_url}{product.id}/', data={"price": 250})
+
+        expected_status_code = status.HTTP_403_FORBIDDEN
+        result_status_code = response.status_code
+
+        self.assertEqual(expected_status_code, result_status_code)
+
+    def test_can_register_with_negative_number(self):
+        product_data = {"description": "Liquidificador",
+                        "price": 199,
+                        "quantity": -30, }
+
+        self.client.credentials(
+            HTTP_AUTHORIZATION="Token " + self.token_seller_2.key)
+
+        response = self.client.post(
+            self.list_create_update_url, data=product_data)
+
+        expected_status_code = status.HTTP_400_BAD_REQUEST
+        result_status_code = response.status_code
+
+        self.assertEqual(expected_status_code, result_status_code)
+        self.assertIn("quantity", response.data)
+        self.assertIn(
+            "Ensure this value is greater than or equal to 0.", response.data["quantity"])
+'''
+
 
 
