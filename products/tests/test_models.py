@@ -1,246 +1,73 @@
-
+from django.test import TestCase
 from products.models import Product
 from accounts.models import Account
-from rest_framework.test import APITestCase
-from rest_framework.views import status
-from rest_framework.authtoken.models import Token
 
-# Create your tests here.
 
-class ProductModelTest(APITestCase):
+class ProductModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-
-        cls.url = '/api/products/'
-
-        cls.product_data_1 = {
-            "description": "Celular",
-            "price": 3500,
-            "quantity": 20,
-        }
-
-        cls.product_data_2 = {
-            "description": "TV",
-            "price": 4700,
+        cls.product = {
+            "description": "Iphone",
+            "price": 8900.00,
             "quantity": 10,
+            "is_active": True
         }
 
-        cls.account_adm = {
-            'username': 'admin',
-            'password': 'admin123',
-            'first_name': 'Carlos',
-            'last_name':'Silva'
+        cls.user = {
+            "username": "Leandro",
+            "first_name": "Leandro",
+            "last_name": "Pereira",
+            "is_seller": True
         }
 
-        cls.account_is_seller_1 = {
-            'username': 'seller',
-            'password': 'seller123',
-            'first_name': 'Joao',
-            'last_name':'Silva',
-            'is_seller': True
+        cls.account = Account.objects.create_user(**cls.user)
+        cls.product = Product.objects.create(
+            **cls.product, seller=cls.account)
+
+    def test_model_atributes(self):
+        product = Product.objects.get(id=self.product.id)
+        price_max_digits = product._meta.get_field("price").max_digits
+        price_decimal = product._meta.get_field("price").decimal_places
+
+        self.assertEqual(price_max_digits, 10)
+        self.assertEqual(price_decimal, 2)
+
+
+class RelationsProductsTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.product = {
+            "description": "Iphone",
+            "price": 8900.00,
+            "quantity": 10,
+            
         }
 
-        cls.account_is_seller_2 = {
-            'username': 'seller2',
-            'password': 'seller123',
-            'first_name': 'Marina',
-            'last_name':'Silva',
-            'is_seller': True
+        cls.user_1 = {
+            "username": "Leandro",
+            "first_name": "Leandro",
+            "last_name": "Pereira",
+            "is_seller": True
         }
 
-        cls.account_common = {
-            'username': 'user',
-            'password': 'user123',
-            'first_name': 'Simone',
-            'last_name':'Silva',
-            'is_seller': False
+        cls.user_2 = {
+            "username": "Thiago",
+            "first_name": "Thiago",
+            "last_name": "Amorim",
+            "is_seller": True
         }
 
-        cls.account_login_is_seller_1 = {
-            "username":'seller',
-            'password': 'seller123'
-        }
+        cls.data_1 = Account.objects.create_user(**cls.user_1)
+        cls.data_2 = Account.objects.create_user(**cls.user_2)
+        cls.product = Product.objects.create(
+            **cls.product, seller=cls.data_1)
 
-        cls.account_login_is_seller_2 = {
-            'username': 'seller2',
-            'password': 'seller123'
-        }
+    def test_one_product_only_for_one_seller(self):
+        self.assertIn(self.product, self.data_1.products.filter(
+            description="Iphone"))
 
-        cls.admin = Account.objects.create_superuser(**cls.account_adm)
-        cls.token_admin = Token.objects.create(user=cls.admin)
-
-        cls.is_seller_1 = Account.objects.create_user(**cls.account_is_seller_1)
-        cls.token_is_seller_1 = Token.objects.create(user=cls.is_seller_1)
-
-        cls.is_seller_2 = Account.objects.create_user(**cls.account_is_seller_2)
-        cls.token_is_seller_2 = Token.objects.create(user=cls.is_seller_2)
-
-        cls.common = Account.objects.create_user(**cls.account_common)
-        cls.token_common = Token.objects.create(user=cls.common)
-
-        cls.product_created = Product.objects.create(
-            **cls.product_data_2, seller=cls.is_seller_2)
-
-        cls.products = [
-            Product.objects.create(
-                description=f"Produto {product_id}",
-                price=99,
-                quantity=5,
-                seller=cls.is_seller_1,
-            )
-            for product_id in range(1, 5)
-        ]
-
-    def test_create_product_with_seller(self):
-        self.client.credentials(
-            HTTP_AUTHORIZATION="Token " + self.token_is_seller_1.key)
-
-        response = self.client.post(
-            self.url, data=self.product_data_1)
-
-        expected_status_code = status.HTTP_201_CREATED
-        result_status_code = response.status_code
-
-        self.assertEqual(expected_status_code, result_status_code)
-        self.assertEqual(len(response.data.keys()), 6)
-        self.assertIn('id', response.data)
-        self.assertIn("description",  response.data)
-        self.assertIn("price",  response.data)
-        self.assertIn("quantity",  response.data)
-        self.assertIn("is_active", response.data)
-        self.assertIn("seller", response.data)
-
-        self.assertEqual(len(response.data["seller"].keys()), 8)
-
-    def test_create_product_without_token(self):
-        response = self.client.post(
-            self.url, data=self.product_data_1)
-
-        expected_status_code = status.HTTP_401_UNAUTHORIZED
-        result_status_code = response.status_code
-
-        self.assertEqual(expected_status_code, result_status_code)
-        self.assertEqual(
-            response.data["detail"], "Authentication credentials were not provided."
-        )
-
-    '''def test_create_product_with_not_seller(self):
-        self.client.credentials(
-            HTTP_AUTHORIZATION="Token " + self.token_not_seller.key)
-
-        response = self.client.post(
-            self.list_create_update_url, data=self.product)
-
-        expected_status_code = status.HTTP_403_FORBIDDEN
-        result_status_code = response.status_code
-        self.assertEqual(expected_status_code, result_status_code)
-        self.assertEqual(
-            response.data["detail"], "You do not have permission to perform this action."
-        )
-
-    def test_create_product_with_adm(self):
-        self.client.credentials(
-            HTTP_AUTHORIZATION="Token " + self.token_adm.key)
-
-        response = self.client.post(
-            self.list_create_update_url, data=self.product)
-
-        expected_status_code = status.HTTP_403_FORBIDDEN
-        result_status_code = response.status_code
-        self.assertEqual(expected_status_code, result_status_code)
-        self.assertEqual(
-            response.data["detail"], "You do not have permission to perform this action."
-        )
-
-    def test_create_with_wrong_keys(self):
-        self.client.credentials(
-            HTTP_AUTHORIZATION="Token " + self.token_seller.key)
-
-        response = self.client.post(
-            self.list_create_update_url, data={})
-
-        expected_status_code = status.HTTP_400_BAD_REQUEST
-        result_status_code = response.status_code
-
-        self.assertEqual(expected_status_code, result_status_code)
-        self.assertEqual(
-            response.data["description"][0], "This field is required."
-        )
-        self.assertEqual(
-            response.data["price"][0], "This field is required."
-        )
-        self.assertEqual(
-            response.data["quantity"][0], "This field is required."
-        )
-
-    def test_can_list_products(self):
-        response = self.client.get(
-            self.list_create_update_url)
-
-        expected_status_code = status.HTTP_200_OK
-        result_status_code = response.status_code
-
-        self.assertEqual(expected_status_code, result_status_code)
-        self.assertIn('results', response.data)
-        self.assertEqual(len(self.products), len(response.data))
-        self.assertEqual(len(response.data['results'][0].keys()), 5)
-
-    def test_can_filter_product(self):
-        response = self.client.get(
-            f'{self.list_create_update_url}{self.product_created.id}/')
-
-        expected_status_code = status.HTTP_200_OK
-        result_status_code = response.status_code
-
-        self.assertEqual(expected_status_code, result_status_code)
-        self.assertEqual(len(response.data.keys()), 5)
-
-    def test_only_owner_can_edit_product(self):
-        product = Product.objects.create(**self.product, seller=self.seller)
-        self.client.credentials(
-            HTTP_AUTHORIZATION="Token " + self.token_seller.key)
-
-        response = self.client.patch(
-            f'{self.list_create_update_url}{product.id}/', data={"price": 250})
-
-        expected_status_code = status.HTTP_200_OK
-        result_status_code = response.status_code
-
-        self.assertEqual(expected_status_code, result_status_code)
-        self.assertEqual(len(response.data.keys()), 6)
-
-    def test_other_user_can_edit_product(self):
-        product = Product.objects.create(**self.product, seller=self.seller)
-        self.client.credentials(
-            HTTP_AUTHORIZATION="Token " + self.token_seller_2.key)
-
-        response = self.client.patch(
-            f'{self.list_create_update_url}{product.id}/', data={"price": 250})
-
-        expected_status_code = status.HTTP_403_FORBIDDEN
-        result_status_code = response.status_code
-
-        self.assertEqual(expected_status_code, result_status_code)
-
-    def test_can_register_with_negative_number(self):
-        product_data = {"description": "Liquidificador",
-                        "price": 199,
-                        "quantity": -30, }
-
-        self.client.credentials(
-            HTTP_AUTHORIZATION="Token " + self.token_seller_2.key)
-
-        response = self.client.post(
-            self.list_create_update_url, data=product_data)
-
-        expected_status_code = status.HTTP_400_BAD_REQUEST
-        result_status_code = response.status_code
-
-        self.assertEqual(expected_status_code, result_status_code)
-        self.assertIn("quantity", response.data)
-        self.assertIn(
-            "Ensure this value is greater than or equal to 0.", response.data["quantity"])
-'''
-
-
-
+        self.data_2.products.add(self.product)
+        self.assertNotIn(self.product, self.data_1.products.filter(
+            description="Iphone"))
+        self.assertIn(self.product, self.data_2.products.filter(
+            description="Iphone"))
